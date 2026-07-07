@@ -1,19 +1,14 @@
-# Steefware Hypotheek Simulator
+# Aflossingstabel — steefware.com
 
-Moderne React/Vite + Tailwind calculator (NL/EN) om hypotheken te simuleren met annuïtaire berekening, CAP/FLOOR (variabel), maand- en jaaroverzichten, CSV-export en lichte Steefware-branding.
+Mortgage / loan repayment calculator. Annuity math (Belgian effective-annual → monthly rate convention), CAP/FLOOR for variable rates, monthly and yearly amortization tables, CSV export. Full EN/NL toggle.
+
+Single self-contained `index.html` (Tailwind via CDN, vanilla JS) — no build step, same setup as the other steefware apps.
 
 ## Local development
+Open `index.html` in a browser, or serve the folder:
 ```bash
-npm install
-npm run dev
+python -m http.server
 ```
-Open de URL die Vite toont (standaard `http://localhost:5173`).
-
-## Build
-```bash
-npm run build
-```
-Output staat in `dist/` (niet gecommit). Gebruik `npm run preview` om de productiebuild lokaal te testen.
 
 ## Deployment (GitHub Pages)
-Workflow: `.github/workflows/deploy.yml` bouwt en publiceert de `dist/`-artifact naar Pages op pushes naar `main`.
+`.github/workflows/deploy.yml` publishes the repo root to Pages on pushes to `main`.

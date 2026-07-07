@@ -1,23 +1,784 @@
 <!doctype html>
-<html lang="nl">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="%BASE_URL%vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Aflossingstabel" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>Aflossingstabel — steefware.com</title>
     <meta
       name="description"
-      content="Hypotheek Simulator - Bereken maandelijkse aflossingen, totale rente en zie een volledige aflossingstabel. Subtiel Steefware merk."
+      content="Mortgage / loan repayment calculator. Monthly payment, total interest and a full amortization table. Deterministic and transparent."
     />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap"
-      rel="stylesheet"
-    />
-    <title>Hypotheek Simulator - Rente & Aflossingstabel | Steefware</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      html, body { height: 100%; }
+      body {
+        padding: env(safe-area-inset-top) env(safe-area-inset-right)
+                 env(safe-area-inset-bottom) env(safe-area-inset-left);
+        -webkit-tap-highlight-color: transparent;
+      }
+      /* Hide number input spinners for a cleaner brutalist look on desktop */
+      input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+      input[type="number"]::-webkit-outer-spin-button,
+      input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    </style>
   </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+
+  <body class="bg-white text-black antialiased">
+    <div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+      <!-- Header -->
+      <header class="flex items-center justify-between py-6">
+        <a
+          href="https://steefware.com"
+          class="inline-flex items-center gap-2 rounded-xl border-2 border-black px-3 py-2 text-sm font-black tracking-tight shadow-[4px_4px_0_0_#000] transition-transform duration-150 ease-out hover:-translate-y-0.5 hover:translate-x-0.5 focus:outline-none focus-visible:ring-4 focus-visible:ring-black focus-visible:ring-offset-4 focus-visible:ring-offset-white"
+          aria-label="steefware home"
+        >
+          <span class="inline-block h-2 w-2 rounded-full bg-fuchsia-500"></span>
+          steefware.com
+        </a>
+
+        <div class="flex items-center gap-3">
+          <nav class="hidden items-center gap-3 text-sm font-semibold sm:flex">
+            <a
+              href="https://steefware.com/#about"
+              class="rounded-lg px-2 py-1 underline underline-offset-4 decoration-2 decoration-black/30 transition-colors duration-150 hover:decoration-black focus:outline-none focus-visible:ring-4 focus-visible:ring-black focus-visible:ring-offset-4 focus-visible:ring-offset-white"
+              >about</a
+            >
+            <a
+              href="https://steefware.com/#tools"
+              class="rounded-lg px-2 py-1 underline underline-offset-4 decoration-2 decoration-black/30 transition-colors duration-150 hover:decoration-black focus:outline-none focus-visible:ring-4 focus-visible:ring-black focus-visible:ring-offset-4 focus-visible:ring-offset-white"
+              >apps</a
+            >
+          </nav>
+
+          <!-- Language toggle -->
+          <div
+            class="inline-flex overflow-hidden rounded-xl border-2 border-black shadow-[4px_4px_0_0_#000]"
+            role="group"
+            aria-label="Language"
+          >
+            <button id="langEn" type="button" class="px-3 py-2 text-xs font-black focus:outline-none focus-visible:ring-4 focus-visible:ring-black">EN</button>
+            <button id="langNl" type="button" class="border-l-2 border-black px-3 py-2 text-xs font-black focus:outline-none focus-visible:ring-4 focus-visible:ring-black">NL</button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main -->
+      <main class="pb-14 pt-6">
+        <!-- Hero -->
+        <section class="relative">
+          <div class="rounded-3xl border-2 border-black p-6 shadow-[8px_8px_0_0_#000] sm:p-10">
+            <h1 data-i18n="title" class="text-balance text-4xl font-black tracking-tight sm:text-5xl"></h1>
+            <div class="mt-4 space-y-2 text-base font-semibold sm:text-lg">
+              <p data-i18n="subtitle"></p>
+            </div>
+            <div
+              class="pointer-events-none absolute -right-2 -top-2 hidden h-10 w-10 rotate-6 rounded-2xl border-2 border-black bg-amber-300 shadow-[4px_4px_0_0_#000] sm:block"
+              aria-hidden="true"
+            ></div>
+          </div>
+        </section>
+
+        <!-- Form -->
+        <section class="mt-10">
+          <div class="rounded-3xl border-2 border-black bg-white p-6 shadow-[8px_8px_0_0_#000] sm:p-8">
+            <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <h2 data-i18n="input" class="text-xl font-black tracking-tight"></h2>
+                <p data-i18n="variableHint" class="mt-1 text-sm font-semibold text-black/70"></p>
+              </div>
+            </div>
+
+            <form id="loanForm" class="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2" novalidate>
+              <!-- Amount -->
+              <div>
+                <label for="amount" class="flex items-baseline justify-between text-sm font-black uppercase tracking-widest">
+                  <span data-i18n="amount"></span>
+                  <span class="text-xs font-semibold normal-case tracking-normal text-black/50">€ 1.000 – 5.000.000</span>
+                </label>
+                <input
+                  id="amount" name="amount" type="number" inputmode="decimal" min="1000" max="5000000" step="1000" value="250000"
+                  class="mt-2 w-full rounded-2xl border-2 border-black bg-white px-4 py-3 font-mono text-sm font-black shadow-[4px_4px_0_0_#000] focus:outline-none focus-visible:ring-4 focus-visible:ring-black focus-visible:ring-offset-4 focus-visible:ring-offset-white"
+                />
+                <p id="err-amount" class="mt-2 hidden text-sm font-semibold text-red-600"></p>
+              </div>
+
+              <!-- Rate -->
+              <div>
+                <label for="rate" class="flex items-baseline justify-between text-sm font-black uppercase tracking-widest">
+                  <span data-i18n="rate"></span>
+                  <span class="text-xs font-semibold normal-case tracking-normal text-black/50">0 – 20%</span>
+                </label>
+                <input
+                  id="rate" name="rate" type="number" inputmode="decimal" min="0" max="20" step="0.01" value="3"
+                  class="mt-2 w-full rounded-2xl border-2 border-black bg-white px-4 py-3 font-mono text-sm font-black shadow-[4px_4px_0_0_#000] focus:outline-none focus-visible:ring-4 focus-visible:ring-black focus-visible:ring-offset-4 focus-visible:ring-offset-white"
+                />
+                <p id="err-rate" class="mt-2 hidden text-sm font-semibold text-red-600"></p>
+              </div>
+
+              <!-- Duration -->
+              <div>
+                <label for="duration" class="text-sm font-black uppercase tracking-widest" data-i18n="duration"></label>
+                <div class="mt-2 grid grid-cols-[1fr_auto] gap-3">
+                  <input
+                    id="duration" name="duration" type="number" inputmode="numeric" min="1" max="50" value="25"
+                    class="w-full rounded-2xl border-2 border-black bg-white px-4 py-3 font-mono text-sm font-black shadow-[4px_4px_0_0_#000] focus:outline-none focus-visible:ring-4 focus-visible:ring-black focus-visible:ring-offset-4 focus-visible:ring-offset-white"
+                  />
+                  <select
+                    id="durationUnit" name="durationUnit"
+                    class="rounded-2xl border-2 border-black bg-white px-4 py-3 text-sm font-black shadow-[4px_4px_0_0_#000] focus:outline-none focus-visible:ring-4 focus-visible:ring-black focus-visible:ring-offset-4 focus-visible:ring-offset-white"
+                  >
+                    <option value="years" data-i18n="years" selected></option>
+                    <option value="months" data-i18n="months"></option>
+                  </select>
+                </div>
+                <p id="err-duration" class="mt-2 hidden text-sm font-semibold text-red-600"></p>
+              </div>
+
+              <!-- Rate type -->
+              <div>
+                <span class="text-sm font-black uppercase tracking-widest" data-i18n="type"></span>
+                <div class="mt-2 inline-flex w-full overflow-hidden rounded-2xl border-2 border-black shadow-[4px_4px_0_0_#000]" role="group">
+                  <button id="typeFixed" type="button" data-i18n="fixed" class="flex-1 px-4 py-3 text-sm font-black focus:outline-none focus-visible:ring-4 focus-visible:ring-black"></button>
+                  <button id="typeVariable" type="button" data-i18n="variable" class="flex-1 border-l-2 border-black px-4 py-3 text-sm font-black focus:outline-none focus-visible:ring-4 focus-visible:ring-black"></button>
+                </div>
+              </div>
+
+              <!-- CAP -->
+              <div>
+                <label for="cap" class="flex items-baseline justify-between text-sm font-black uppercase tracking-widest">
+                  <span data-i18n="cap"></span>
+                  <span class="text-xs font-semibold normal-case tracking-normal text-black/50" data-i18n="optional"></span>
+                </label>
+                <input
+                  id="cap" name="cap" type="number" inputmode="decimal" min="0" max="30" step="0.1" value="5"
+                  class="mt-2 w-full rounded-2xl border-2 border-black bg-white px-4 py-3 font-mono text-sm font-black shadow-[4px_4px_0_0_#000] focus:outline-none focus-visible:ring-4 focus-visible:ring-black focus-visible:ring-offset-4 focus-visible:ring-offset-white disabled:opacity-40"
+                />
+                <p id="err-cap" class="mt-2 hidden text-sm font-semibold text-red-600"></p>
+              </div>
+
+              <!-- FLOOR -->
+              <div>
+                <label for="floor" class="flex items-baseline justify-between text-sm font-black uppercase tracking-widest">
+                  <span data-i18n="floor"></span>
+                  <span class="text-xs font-semibold normal-case tracking-normal text-black/50" data-i18n="optional"></span>
+                </label>
+                <input
+                  id="floor" name="floor" type="number" inputmode="decimal" min="0" max="20" step="0.1" value="1"
+                  class="mt-2 w-full rounded-2xl border-2 border-black bg-white px-4 py-3 font-mono text-sm font-black shadow-[4px_4px_0_0_#000] focus:outline-none focus-visible:ring-4 focus-visible:ring-black focus-visible:ring-offset-4 focus-visible:ring-offset-white disabled:opacity-40"
+                />
+                <p id="err-floor" class="mt-2 hidden text-sm font-semibold text-red-600"></p>
+              </div>
+
+              <!-- Start date -->
+              <div>
+                <label for="startDate" class="text-sm font-black uppercase tracking-widest" data-i18n="startDate"></label>
+                <input
+                  id="startDate" name="startDate" type="date"
+                  class="mt-2 w-full rounded-2xl border-2 border-black bg-white px-4 py-3 font-mono text-sm font-black shadow-[4px_4px_0_0_#000] focus:outline-none focus-visible:ring-4 focus-visible:ring-black focus-visible:ring-offset-4 focus-visible:ring-offset-white"
+                />
+                <p id="err-startDate" class="mt-2 hidden text-sm font-semibold text-red-600"></p>
+              </div>
+
+              <!-- Submit -->
+              <div class="flex items-end">
+                <button
+                  id="calcBtn" type="submit" data-i18n="cta"
+                  class="w-full rounded-2xl border-2 border-black bg-fuchsia-500 px-4 py-3 text-sm font-black shadow-[4px_4px_0_0_#000] transition-transform duration-150 ease-out hover:-translate-y-0.5 hover:translate-x-0.5 focus:outline-none focus-visible:ring-4 focus-visible:ring-black focus-visible:ring-offset-4 focus-visible:ring-offset-white"
+                ></button>
+              </div>
+            </form>
+
+            <p id="formStatus" class="mt-4 min-h-[18px] text-sm font-semibold text-black/70" role="status" data-i18n="emptyState"></p>
+          </div>
+        </section>
+
+        <!-- Results -->
+        <section id="results" class="mt-10 hidden">
+          <!-- KPI cards -->
+          <div class="grid grid-cols-1 gap-5 sm:grid-cols-3" id="kpiGrid">
+            <div class="rounded-2xl border-2 border-black bg-white p-5 shadow-[6px_6px_0_0_#000]">
+              <div class="text-xs font-black uppercase tracking-widest text-black/60" data-i18n="monthlyPayment"></div>
+              <div id="kpiMonthly" class="mt-2 text-2xl font-black tracking-tight"></div>
+            </div>
+            <div class="rounded-2xl border-2 border-black bg-white p-5 shadow-[6px_6px_0_0_#000]">
+              <div class="text-xs font-black uppercase tracking-widest text-black/60" data-i18n="totalInterest"></div>
+              <div id="kpiInterest" class="mt-2 text-2xl font-black tracking-tight"></div>
+            </div>
+            <div class="rounded-2xl border-2 border-black bg-white p-5 shadow-[6px_6px_0_0_#000]">
+              <div class="text-xs font-black uppercase tracking-widest text-black/60" data-i18n="totalPaid"></div>
+              <div id="kpiTotal" class="mt-2 text-2xl font-black tracking-tight"></div>
+            </div>
+            <div id="kpiCapCard" class="hidden rounded-2xl border-2 border-black bg-amber-300 p-5 shadow-[6px_6px_0_0_#000]">
+              <div class="text-xs font-black uppercase tracking-widest text-black/60" data-i18n="worstCase"></div>
+              <div id="kpiCap" class="mt-2 text-2xl font-black tracking-tight"></div>
+            </div>
+            <div id="kpiFloorCard" class="hidden rounded-2xl border-2 border-black bg-fuchsia-500 p-5 shadow-[6px_6px_0_0_#000]">
+              <div class="text-xs font-black uppercase tracking-widest text-black/70" data-i18n="bestCase"></div>
+              <div id="kpiFloor" class="mt-2 text-2xl font-black tracking-tight"></div>
+            </div>
+          </div>
+
+          <!-- Charts -->
+          <div class="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
+            <div class="rounded-3xl border-2 border-black bg-white p-6 shadow-[8px_8px_0_0_#000]">
+              <div class="flex items-baseline justify-between gap-3">
+                <h3 class="text-sm font-black uppercase tracking-widest" data-i18n="balanceTrend"></h3>
+                <span id="trendRange" class="text-xs font-semibold text-black/60"></span>
+              </div>
+              <svg id="sparkline" class="mt-4 h-28 w-full" viewBox="0 0 320 80" preserveAspectRatio="none" role="img">
+                <defs>
+                  <linearGradient id="balGrad" x1="0" x2="0" y1="0" y2="1">
+                    <stop stop-color="#d946ef" stop-opacity="0.35" offset="0%" />
+                    <stop stop-color="#d946ef" stop-opacity="0" offset="100%" />
+                  </linearGradient>
+                </defs>
+                <path id="sparkFill" d="" fill="url(#balGrad)" />
+                <path id="sparkLine" d="" fill="none" stroke="#000" stroke-width="3" stroke-linecap="round" vector-effect="non-scaling-stroke" />
+              </svg>
+            </div>
+
+            <div class="rounded-3xl border-2 border-black bg-white p-6 shadow-[8px_8px_0_0_#000]">
+              <h3 class="text-sm font-black uppercase tracking-widest" data-i18n="breakdown"></h3>
+              <div class="mt-2 flex items-center gap-4 text-xs font-semibold text-black/70">
+                <span class="inline-flex items-center gap-1.5"><span class="inline-block h-3 w-3 rounded-sm border border-black bg-fuchsia-500"></span><span data-i18n="capital"></span></span>
+                <span class="inline-flex items-center gap-1.5"><span class="inline-block h-3 w-3 rounded-sm border border-black bg-amber-300"></span><span data-i18n="interest"></span></span>
+              </div>
+              <div id="breakdownBars" class="mt-4 max-h-64 space-y-3 overflow-auto pr-1"></div>
+            </div>
+          </div>
+
+          <!-- Table -->
+          <div class="mt-5 rounded-3xl border-2 border-black bg-white p-6 shadow-[8px_8px_0_0_#000]">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <h3 id="tableTitle" class="text-xl font-black tracking-tight"></h3>
+              <div class="flex flex-wrap items-center gap-3">
+                <div class="inline-flex overflow-hidden rounded-xl border-2 border-black shadow-[4px_4px_0_0_#000]" role="group">
+                  <button id="viewMonthly" type="button" data-i18n="monthly" class="px-3 py-2 text-xs font-black focus:outline-none focus-visible:ring-4 focus-visible:ring-black"></button>
+                  <button id="viewYearly" type="button" data-i18n="yearly" class="border-l-2 border-black px-3 py-2 text-xs font-black focus:outline-none focus-visible:ring-4 focus-visible:ring-black"></button>
+                </div>
+                <button
+                  id="csvBtn" type="button"
+                  class="inline-flex items-center gap-2 rounded-xl border-2 border-black bg-white px-3 py-2 text-xs font-black shadow-[4px_4px_0_0_#000] transition-transform duration-150 ease-out hover:-translate-y-0.5 hover:translate-x-0.5 focus:outline-none focus-visible:ring-4 focus-visible:ring-black focus-visible:ring-offset-4 focus-visible:ring-offset-white"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M12 3v12m0 0 4-4m-4 4-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                  <span data-i18n="downloadCsv"></span>
+                </button>
+              </div>
+            </div>
+
+            <div class="mt-5 overflow-auto rounded-2xl border-2 border-black shadow-[4px_4px_0_0_#000]">
+              <table class="w-full min-w-[680px] text-left text-sm font-semibold">
+                <thead id="tableHead" class="border-b-2 border-black bg-amber-300 text-xs font-black uppercase tracking-widest"></thead>
+                <tbody id="tableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script>
+      (() => {
+        // ---------- i18n ----------
+        const I18N = {
+          en: {
+            title: "Aflossingstabel",
+            subtitle: "Mortgage / loan repayment calculator. Instant monthly payment, total interest and a full amortization table. Deterministic and transparent.",
+            input: "Input",
+            variableHint: "CAP/FLOOR only apply to variable rates.",
+            amount: "Loan amount",
+            rate: "Interest rate (% / year)",
+            duration: "Term",
+            type: "Rate type",
+            fixed: "Fixed",
+            variable: "Variable",
+            cap: "CAP (max rate)",
+            floor: "FLOOR (min rate)",
+            optional: "optional",
+            startDate: "Start date",
+            cta: "Calculate loan",
+            emptyState: "Fill in the form and hit “Calculate loan” to see the schedule.",
+            validation: "Please correct the highlighted fields.",
+            monthly: "Monthly",
+            yearly: "Yearly",
+            years: "Years",
+            months: "Months",
+            monthlyPayment: "Monthly payment",
+            totalInterest: "Total interest",
+            totalPaid: "Total repayment",
+            worstCase: "Max monthly (CAP)",
+            bestCase: "Min monthly (FLOOR)",
+            balanceTrend: "Balance trend",
+            breakdown: "Yearly breakdown",
+            capital: "Principal",
+            interest: "Interest",
+            tableMonthly: "Monthly amortization table",
+            tableYearly: "Yearly amortization table",
+            downloadCsv: "Download CSV",
+            thNum: "#",
+            thDate: "Date",
+            thRate: "Rate %",
+            thCapital: "Principal",
+            thInterest: "Interest",
+            thTotal: "Total",
+            thBalance: "Balance",
+            thYear: "Year",
+            thEndBalance: "End balance",
+            errAmount: "Amount must be between €1,000 and €5,000,000.",
+            errRate: "Rate must be between 0% and 20%.",
+            errDuration: (max) => `Term must be between 1 and ${max}.`,
+            errCapMin: "CAP must be ≥ the rate.",
+            errCapMax: "CAP can be at most 30%.",
+            errFloorMax: "FLOOR must be ≤ the rate.",
+            errFloorMin: "FLOOR cannot be negative.",
+            errCapFloor: "CAP must be ≥ FLOOR.",
+            errDate: "Use today or a date in the past.",
+            csvMonthly: "amortization-monthly.csv",
+            csvYearly: "amortization-yearly.csv",
+          },
+          nl: {
+            title: "Aflossingstabel",
+            subtitle: "Hypotheek- / leningsimulator. Directe maandaflossing, totale rente en een volledige aflossingstabel. Deterministisch en transparant.",
+            input: "Invoer",
+            variableHint: "CAP/FLOOR gelden enkel bij variabele rente.",
+            amount: "Leningsbedrag",
+            rate: "Rentevoet (% / jaar)",
+            duration: "Looptijd",
+            type: "Type rente",
+            fixed: "Vast",
+            variable: "Variabel",
+            cap: "CAP (max. rente)",
+            floor: "FLOOR (min. rente)",
+            optional: "optioneel",
+            startDate: "Startdatum",
+            cta: "Bereken lening",
+            emptyState: "Vul het formulier in en klik op “Bereken lening” om de tabel te zien.",
+            validation: "Controleer de rood gemarkeerde velden.",
+            monthly: "Maandelijks",
+            yearly: "Jaarlijks",
+            years: "Jaren",
+            months: "Maanden",
+            monthlyPayment: "Maandelijkse aflossing",
+            totalInterest: "Totale interest",
+            totalPaid: "Totale terugbetaling",
+            worstCase: "Max. maandlast (CAP)",
+            bestCase: "Min. maandlast (FLOOR)",
+            balanceTrend: "Saldo verloop",
+            breakdown: "Jaaroverzicht",
+            capital: "Kapitaal",
+            interest: "Interest",
+            tableMonthly: "Maandelijkse aflossingstabel",
+            tableYearly: "Jaarlijkse aflossingstabel",
+            downloadCsv: "Download CSV",
+            thNum: "#",
+            thDate: "Datum",
+            thRate: "Rente %",
+            thCapital: "Kapitaal",
+            thInterest: "Interest",
+            thTotal: "Totaal",
+            thBalance: "Saldo",
+            thYear: "Jaar",
+            thEndBalance: "Eindsaldo",
+            errAmount: "Bedrag moet tussen €1.000 en €5.000.000 liggen.",
+            errRate: "Rentevoet moet tussen 0% en 20% liggen.",
+            errDuration: (max) => `Looptijd moet tussen 1 en ${max} liggen.`,
+            errCapMin: "CAP moet ≥ de rentevoet zijn.",
+            errCapMax: "CAP is maximaal 30%.",
+            errFloorMax: "FLOOR moet ≤ de rentevoet zijn.",
+            errFloorMin: "FLOOR mag niet negatief zijn.",
+            errCapFloor: "CAP moet ≥ FLOOR zijn.",
+            errDate: "Gebruik vandaag of een datum in het verleden.",
+            csvMonthly: "aflossing-maandelijks.csv",
+            csvYearly: "aflossing-jaarlijks.csv",
+          },
+        };
+
+        const LANG_KEY = "steefware-lang";
+        let lang = localStorage.getItem(LANG_KEY);
+        if (lang !== "nl" && lang !== "en") lang = "en";
+        const t = (key, ...args) => {
+          const v = I18N[lang][key];
+          return typeof v === "function" ? v(...args) : v;
+        };
+
+        // ---------- Elements ----------
+        const $ = (id) => document.getElementById(id);
+        const el = {
+          form: $("loanForm"),
+          amount: $("amount"),
+          rate: $("rate"),
+          duration: $("duration"),
+          durationUnit: $("durationUnit"),
+          typeFixed: $("typeFixed"),
+          typeVariable: $("typeVariable"),
+          cap: $("cap"),
+          floor: $("floor"),
+          startDate: $("startDate"),
+          status: $("formStatus"),
+          results: $("results"),
+          kpiMonthly: $("kpiMonthly"),
+          kpiInterest: $("kpiInterest"),
+          kpiTotal: $("kpiTotal"),
+          kpiCap: $("kpiCap"),
+          kpiFloor: $("kpiFloor"),
+          kpiCapCard: $("kpiCapCard"),
+          kpiFloorCard: $("kpiFloorCard"),
+          trendRange: $("trendRange"),
+          sparkLine: $("sparkLine"),
+          sparkFill: $("sparkFill"),
+          breakdownBars: $("breakdownBars"),
+          tableTitle: $("tableTitle"),
+          tableHead: $("tableHead"),
+          tableBody: $("tableBody"),
+          viewMonthly: $("viewMonthly"),
+          viewYearly: $("viewYearly"),
+          csvBtn: $("csvBtn"),
+          langEn: $("langEn"),
+          langNl: $("langNl"),
+        };
+
+        // ---------- State ----------
+        let rateType = "fixed";
+        let view = "monthly";
+        let results = null;
+
+        // ---------- Math (identical to the original simulator) ----------
+        const round2 = (v) => Math.round((v + Number.EPSILON) * 100) / 100;
+        // Belgian convention: effective annual rate -> equivalent monthly rate
+        const monthlyRateFromAnnual = (annualPct) => (1 + annualPct / 100) ** (1 / 12) - 1;
+        const computePayment = (principal, periodRate, periods) => {
+          if (periodRate === 0) return round2(principal / periods);
+          const factor = (1 + periodRate) ** periods;
+          return round2((principal * periodRate * factor) / (factor - 1));
+        };
+        const addMonths = (date, months) => {
+          const d = new Date(date);
+          d.setMonth(d.getMonth() + months);
+          return d;
+        };
+
+        function calculateLoan(v) {
+          const principal = v.amount;
+          const months = v.durationUnit === "months" ? v.duration : v.duration * 12;
+          const baseMonthlyRate = monthlyRateFromAnnual(v.rate);
+          const monthlyPayment = computePayment(principal, baseMonthlyRate, months);
+
+          const capRate = v.type === "variable" ? monthlyRateFromAnnual(v.cap ?? v.rate) : baseMonthlyRate;
+          const floorRate = v.type === "variable" ? monthlyRateFromAnnual(v.floor ?? v.rate) : baseMonthlyRate;
+          const maxMonthly = computePayment(principal, capRate, months);
+          const minMonthly = computePayment(principal, floorRate, months);
+
+          let balance = principal;
+          const schedule = [];
+          for (let i = 0; i < months; i += 1) {
+            let interest = round2(balance * baseMonthlyRate);
+            let capital = round2(monthlyPayment - interest);
+            let payment = monthlyPayment;
+            if (i === months - 1) {
+              // Final payment clears rounding residue.
+              capital = round2(balance);
+              interest = round2(balance * baseMonthlyRate);
+              payment = round2(capital + interest);
+              balance = 0;
+            } else {
+              balance = round2(balance - capital);
+            }
+            schedule.push({
+              index: i + 1,
+              date: addMonths(v.startDate, i),
+              rate: baseMonthlyRate * 100,
+              capital,
+              interest,
+              payment,
+              balance,
+            });
+          }
+
+          const totalInterest = round2(schedule.reduce((s, r) => s + r.interest, 0));
+          const totalPaid = round2(schedule.reduce((s, r) => s + r.payment, 0));
+
+          const yearlyMap = {};
+          for (const row of schedule) {
+            const year = row.date.getFullYear();
+            if (!yearlyMap[year]) yearlyMap[year] = { year, capital: 0, interest: 0, payment: 0, endBalance: 0 };
+            const y = yearlyMap[year];
+            y.capital = round2(y.capital + row.capital);
+            y.interest = round2(y.interest + row.interest);
+            y.payment = round2(y.payment + row.payment);
+            y.endBalance = row.balance;
+          }
+
+          return {
+            monthlyPayment,
+            totalInterest,
+            totalPaid,
+            schedule,
+            yearly: Object.values(yearlyMap).sort((a, b) => a.year - b.year),
+            minMonthly,
+            maxMonthly,
+          };
+        }
+
+        // ---------- Formatting ----------
+        const fmtCur = (v) =>
+          new Intl.NumberFormat(lang === "nl" ? "nl-BE" : "en-GB", {
+            style: "currency",
+            currency: "EUR",
+            maximumFractionDigits: 2,
+          }).format(v);
+        const fmtDate = (d) => new Intl.DateTimeFormat(lang === "nl" ? "nl-BE" : "en-GB").format(d);
+
+        // ---------- Validation ----------
+        function readForm() {
+          return {
+            amount: Number(el.amount.value),
+            rate: Number(el.rate.value),
+            duration: Number(el.duration.value),
+            durationUnit: el.durationUnit.value,
+            type: rateType,
+            cap: el.cap.value === "" ? null : Number(el.cap.value),
+            floor: el.floor.value === "" ? null : Number(el.floor.value),
+            startDate: el.startDate.value,
+          };
+        }
+
+        function validate(v) {
+          const errors = {};
+          const durationMax = v.durationUnit === "months" ? 600 : 50;
+          if (!Number.isFinite(v.amount) || v.amount < 1000 || v.amount > 5000000) errors.amount = t("errAmount");
+          if (!Number.isFinite(v.rate) || v.rate < 0 || v.rate > 20) errors.rate = t("errRate");
+          if (!Number.isFinite(v.duration) || v.duration < 1 || v.duration > durationMax)
+            errors.duration = t("errDuration", durationMax);
+          if (v.type === "variable") {
+            if (v.cap != null && v.cap < v.rate) errors.cap = t("errCapMin");
+            if (v.cap != null && v.cap > 30) errors.cap = t("errCapMax");
+            if (v.floor != null && v.floor > v.rate) errors.floor = t("errFloorMax");
+            if (v.floor != null && v.floor < 0) errors.floor = t("errFloorMin");
+            if (v.cap != null && v.floor != null && v.cap < v.floor) errors.cap = t("errCapFloor");
+          }
+          const today = new Date();
+          const d = new Date(v.startDate);
+          if (Number.isNaN(d.getTime()) || d > today) errors.startDate = t("errDate");
+          return errors;
+        }
+
+        function showErrors(errors) {
+          for (const field of ["amount", "rate", "duration", "cap", "floor", "startDate"]) {
+            const msg = $(`err-${field}`);
+            const input = el[field];
+            if (errors[field]) {
+              msg.textContent = errors[field];
+              msg.classList.remove("hidden");
+              input.classList.add("border-red-600");
+            } else {
+              msg.classList.add("hidden");
+              input.classList.remove("border-red-600");
+            }
+          }
+        }
+
+        // ---------- Rendering ----------
+        const ACTIVE = ["bg-black", "text-white"];
+
+        function setToggle(onBtn, offBtn) {
+          onBtn.classList.add(...ACTIVE);
+          offBtn.classList.remove(...ACTIVE);
+        }
+
+        function renderSparkline(schedule) {
+          const width = 320, height = 80;
+          const balances = schedule.map((r) => r.balance);
+          const maxBal = Math.max(...balances, 1);
+          const step = width / Math.max(1, balances.length - 1);
+          const pts = balances.map((b, i) => `${i === 0 ? "M" : "L"}${(i * step).toFixed(1)},${(height - (b / maxBal) * height).toFixed(1)}`);
+          const d = pts.join(" ");
+          el.sparkLine.setAttribute("d", d);
+          el.sparkFill.setAttribute("d", `${d} L${width},${height} L0,${height} Z`);
+          el.trendRange.textContent = `${fmtCur(balances[0])} → ${fmtCur(balances[balances.length - 1])}`;
+        }
+
+        function renderBreakdown(yearly) {
+          el.breakdownBars.innerHTML = "";
+          for (const row of yearly) {
+            const total = row.payment || 1;
+            const capPct = (row.capital / total) * 100;
+            const wrap = document.createElement("div");
+            wrap.innerHTML = `
+              <div class="flex items-baseline justify-between text-xs font-semibold text-black/70">
+                <span class="font-black text-black">${row.year}</span>
+                <span>${fmtCur(row.capital)} / ${fmtCur(row.interest)}</span>
+              </div>
+              <div class="mt-1 flex h-3 overflow-hidden rounded-full border-2 border-black">
+                <div class="bg-fuchsia-500" style="width:${capPct}%"></div>
+                <div class="flex-1 bg-amber-300"></div>
+              </div>`;
+            el.breakdownBars.appendChild(wrap);
+          }
+        }
+
+        function renderTable() {
+          if (!results) return;
+          const th = (key) => `<th class="px-4 py-3">${t(key)}</th>`;
+          const td = (v, extra = "") => `<td class="px-4 py-2 ${extra}">${v}</td>`;
+
+          if (view === "monthly") {
+            el.tableTitle.textContent = t("tableMonthly");
+            el.tableHead.innerHTML = `<tr>${["thNum","thDate","thRate","thCapital","thInterest","thTotal","thBalance"].map(th).join("")}</tr>`;
+            el.tableBody.innerHTML = results.schedule
+              .map(
+                (r) =>
+                  `<tr class="border-t-2 border-black/10">${
+                    td(r.index, "text-black/50") +
+                    td(fmtDate(r.date)) +
+                    td(r.rate.toFixed(4)) +
+                    td(fmtCur(r.capital)) +
+                    td(fmtCur(r.interest)) +
+                    td(fmtCur(r.payment), "font-black") +
+                    td(fmtCur(r.balance))
+                  }</tr>`
+              )
+              .join("");
+          } else {
+            el.tableTitle.textContent = t("tableYearly");
+            el.tableHead.innerHTML = `<tr>${["thYear","thCapital","thInterest","thTotal","thEndBalance"].map(th).join("")}</tr>`;
+            el.tableBody.innerHTML = results.yearly
+              .map(
+                (r) =>
+                  `<tr class="border-t-2 border-black/10">${
+                    td(r.year, "font-black") +
+                    td(fmtCur(r.capital)) +
+                    td(fmtCur(r.interest)) +
+                    td(fmtCur(r.payment), "font-black") +
+                    td(fmtCur(r.endBalance))
+                  }</tr>`
+              )
+              .join("");
+          }
+          setToggle(view === "monthly" ? el.viewMonthly : el.viewYearly, view === "monthly" ? el.viewYearly : el.viewMonthly);
+        }
+
+        function renderResults() {
+          if (!results) return;
+          el.results.classList.remove("hidden");
+          el.kpiMonthly.textContent = fmtCur(results.monthlyPayment);
+          el.kpiInterest.textContent = fmtCur(results.totalInterest);
+          el.kpiTotal.textContent = fmtCur(results.totalPaid);
+          const variable = rateType === "variable";
+          el.kpiCapCard.classList.toggle("hidden", !variable);
+          el.kpiFloorCard.classList.toggle("hidden", !variable);
+          if (variable) {
+            el.kpiCap.textContent = fmtCur(results.maxMonthly);
+            el.kpiFloor.textContent = fmtCur(results.minMonthly);
+          }
+          renderSparkline(results.schedule);
+          renderBreakdown(results.yearly);
+          renderTable();
+        }
+
+        // ---------- CSV ----------
+        function downloadCsv() {
+          if (!results) return;
+          let header, rows, filename;
+          if (view === "monthly") {
+            header = [t("thNum"), t("thDate"), t("thRate"), t("thCapital"), t("thInterest"), t("thTotal"), t("thBalance")];
+            rows = results.schedule.map((r) =>
+              [r.index, fmtDate(r.date), r.rate.toFixed(6), r.capital.toFixed(2), r.interest.toFixed(2), r.payment.toFixed(2), r.balance.toFixed(2)].join(";")
+            );
+            filename = t("csvMonthly");
+          } else {
+            header = [t("thYear"), t("thCapital"), t("thInterest"), t("thTotal"), t("thEndBalance")];
+            rows = results.yearly.map((r) =>
+              [r.year, r.capital.toFixed(2), r.interest.toFixed(2), r.payment.toFixed(2), r.endBalance.toFixed(2)].join(";")
+            );
+            filename = t("csvYearly");
+          }
+          const blob = new Blob([`${header.join(";")}\n${rows.join("\n")}`], { type: "text/csv;charset=utf-8;" });
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = filename;
+          link.click();
+          URL.revokeObjectURL(link.href);
+        }
+
+        // ---------- Language ----------
+        function applyLang() {
+          document.documentElement.lang = lang;
+          document.querySelectorAll("[data-i18n]").forEach((node) => {
+            node.textContent = t(node.dataset.i18n);
+          });
+          setToggle(lang === "en" ? el.langEn : el.langNl, lang === "en" ? el.langNl : el.langEn);
+          if (results) {
+            renderResults();
+          } else {
+            el.status.textContent = t("emptyState");
+          }
+        }
+
+        function setLang(next) {
+          lang = next;
+          localStorage.setItem(LANG_KEY, lang);
+          applyLang();
+        }
+
+        // ---------- Rate type ----------
+        function setRateType(next) {
+          rateType = next;
+          const fixed = rateType === "fixed";
+          el.cap.disabled = fixed;
+          el.floor.disabled = fixed;
+          setToggle(fixed ? el.typeFixed : el.typeVariable, fixed ? el.typeVariable : el.typeFixed);
+        }
+
+        // ---------- Events ----------
+        el.form.addEventListener("submit", (e) => {
+          e.preventDefault();
+          const values = readForm();
+          const errors = validate(values);
+          showErrors(errors);
+          if (Object.keys(errors).length) {
+            el.status.textContent = t("validation");
+            results = null;
+            el.results.classList.add("hidden");
+            return;
+          }
+          el.status.textContent = "";
+          results = calculateLoan(values);
+          renderResults();
+        });
+
+        el.durationUnit.addEventListener("change", () => {
+          const yearsSelected = el.durationUnit.value === "years";
+          el.duration.max = yearsSelected ? 50 : 600;
+        });
+
+        el.typeFixed.addEventListener("click", () => setRateType("fixed"));
+        el.typeVariable.addEventListener("click", () => setRateType("variable"));
+        el.viewMonthly.addEventListener("click", () => { view = "monthly"; renderTable(); });
+        el.viewYearly.addEventListener("click", () => { view = "yearly"; renderTable(); });
+        el.csvBtn.addEventListener("click", downloadCsv);
+        el.langEn.addEventListener("click", () => setLang("en"));
+        el.langNl.addEventListener("click", () => setLang("nl"));
+
+        // ---------- Init ----------
+        const today = new Date().toISOString().split("T")[0];
+        el.startDate.value = today;
+        el.startDate.max = today;
+        setRateType("fixed");
+        setToggle(el.viewMonthly, el.viewYearly);
+        applyLang();
+      })();
+    </script>
   </body>
 </html>
